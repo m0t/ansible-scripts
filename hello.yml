@@ -1,0 +1,35 @@
+- hosts: 192.168.56.101
+  remote_user: root
+  vars:
+    appuser: test
+    apprepo: https://github.com/m0t/bottle-test.git 
+  tasks:
+    - name: install pkgs
+      apt: pkg={{item}} state=installed
+      with_items:
+        - sudo
+        - nginx
+        - git
+        - python-bottle
+    - name: create app user
+      user: name={{ appuser }} home=/opt/test/ uid=1313 shell=/bin/bash
+    - name: get app
+      sudo_user: "{{ appuser }}"
+      sudo: yes
+      git: repo={{ apprepo }}
+           dest=/opt/test/hello
+    - name: starter script
+      template: src=start_hello.sh dest=/opt/test/start_hello.sh
+    - name: chmod starter
+      file: path=/opt/test/start_hello.sh mode=755
+    - name: nginx conf
+      template: src=hello.conf dest=/etc/nginx/sites-available/hello.conf
+      #notify: restart nginx
+    - name: enable site
+      file: dest=/etc/nginx/sites-enabled/hello.conf src=/etc/nginx/sites-available/hello.conf state=link
+    - name: restart nginx
+      service: name=nginx state=restarted
+    - name: init script
+      template: src=hello.sh dest=/etc/init.d/hello.sh
+    - name: chmod init script
+      file: path=/etc/init.d/hello.sh mode=755
