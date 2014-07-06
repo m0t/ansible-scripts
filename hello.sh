@@ -15,24 +15,23 @@ PIDFILE=/var/run/hello.pid
 #LOGFILE=/var/log/<NAME>.log
  
 start() {
-  if [ -f /var/run/$PIDNAME ] && kill -0 $(cat /var/run/$PIDNAME); then
+  if [ "$(ps -ef|grep hello.py|grep -v grep)" -ne "" ]; then
     echo 'Service already running' >&2
     return 1
   fi
   echo 'Starting service…' >&2
-  local CMD="$SCRIPT &> \"$LOGFILE\" & echo \$!"
-  su -c "$CMD" $RUNAS > "$PIDFILE"
+  su -c "$SCRIPT &" $RUNAS
   echo 'Service started' >&2
 }
  
 stop() {
-  if [ ! -f "$PIDFILE" ] || ! kill -0 $(cat "$PIDFILE"); then
-    echo 'Service not running' >&2
-    return 1
-  fi
-  echo 'Stopping service…' >&2
-  kill -15 $(cat "$PIDFILE") && rm -f "$PIDFILE"
+  echo 'stopping service…' >&2
+  for i in $(ps -ef|grep hello.py|grep -v grep|tr -s " "|cut -d" " -f2) ;do
+    echo "Killing process $i"
+    kill $i
+  done  
   echo 'Service stopped' >&2
+
 }
 
 ### main logic ###
@@ -44,7 +43,8 @@ case "$1" in
         stop
         ;;
   status)
-        status 
+        #status
+        return -1
         ;;
   restart|reload|condrestart)
         stop

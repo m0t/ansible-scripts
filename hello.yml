@@ -33,3 +33,5 @@
       template: src=hello.sh dest=/etc/init.d/hello.sh
     - name: chmod init script
       file: path=/etc/init.d/hello.sh mode=755
+    - name: start service
+      service: name=hello.sh state=started enabled=yes
