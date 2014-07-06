@@ -28,7 +28,7 @@
     - name: enable site
       file: dest=/etc/nginx/sites-enabled/hello.conf src=/etc/nginx/sites-available/hello.conf state=link
     - name: restart nginx
-      service: name=nginx state=restarted
+      service: name=nginx state=restarted enabled=yes
     - name: init script
       template: src=hello.sh dest=/etc/init.d/hello.sh
     - name: chmod init script
