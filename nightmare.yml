@@ -1,0 +1,73 @@
+- hosts: ubuntu16
+  remote_user: test
+  vars:
+    appuser: test
+    data_dir: /home/{{appuser}}/data/
+    nightmare_repo: https://github.com/joxeankoret/nightmare.git
+    nightmare_dir: "/home/{{ appuser }}/nightmare"
+    db_user: fuzzing
+    db_pass: fuzzing
+    radamsa_repo: https://github.com/aoh/radamsa.git
+    radamsa_dir: /home/{{appuser}}/radamsa
+    zzuf_repo: https://github.com/samhocevar/zzuf.git
+    zzuf_dir: /home/{{appuser}}/zzuf
+  tasks:
+    - name: install pkgs
+      become: yes
+      become_method: sudo
+      apt: pkg={{ item }} state=installed
+      with_items:
+        - sudo
+        - automake
+        - libtool
+        - pkg-config
+        - mariadb-server
+        - python
+        - python-pip
+        - beanstalkd
+        - python-mysqldb
+    - debug: msg="Did you run mysql_secure_installation?"
+    - service: name=mysql state=started enabled=true
+    - name: capstone
+      become: yes
+      become_method: sudo
+      pip: name=capstone
+    - name: olefile
+      become: yes
+      become_method: sudo
+      pip: name=olefile
+    - name: beanstalkc
+      become: yes
+      become_method: sudo
+      pip: name=beanstalkc
+    - name: get radamsa
+      git: repo={{ radamsa_repo }}
+         dest={{radamsa_dir}}
+         accept_hostkey=yes
+    - name: get zzuf
+      git: repo={{ zzuf_repo }}
+         dest={{zzuf_dir}}
+         accept_hostkey=yes
+    - name: get nightmare
+      git: repo={{ nightmare_repo }}
+         dest={{nightmare_dir}}
+         accept_hostkey=yes
+    - mysql_user: name={{db_user}} password={{db_pass}} priv=nightmare.*:ALL state=present
+      become: yes
+      become_method: sudo
+    - mysql_db: name=nightmare state=present
+      become: yes
+      become_method: sudo
+    - shell: mysql -u{{db_user}} -p{{db_pass}} nightmare < {{nightmare_dir}}/doc/sql/nightmare.sql
+    - shell: mysql -u{{db_user}} -p{{db_pass}} -e "update config  set value='{{data_dir}}/samples' where name='SAMPLES_PATH';" nightmare 
+    - shell: mysql -u{{db_user}} -p{{db_pass}} -e "update config  set value='{{data_dir}}/templates' where name='TEMPLATES_PATH';" nightmare
+    - shell: mysql -u{{db_user}} -p{{db_pass}} -e "update config  set value='{{nightmare_dir}}' where name='NIGHTMARE_PATH';" nightmare
+    
+      #- name: build radamsa
+      #make: chdir={{radamsa_dir}} target=install
+      #become: yes
+
+    - name: set web config
+      template: src=web_config.cfg dest={{nightmare_dir}}/runtime/config.cfg 
+
+
