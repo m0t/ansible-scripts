@@ -2,7 +2,7 @@
   remote_user: test
   vars:
     appuser: test
-    data_dir: /home/{{appuser}}/data/
+    data_dir: /home/{{appuser}}/data
     nightmare_repo: https://github.com/joxeankoret/nightmare.git
     nightmare_dir: "/home/{{ appuser }}/nightmare"
     db_user: fuzzing
@@ -26,6 +26,7 @@
         - python-pip
         - beanstalkd
         - python-mysqldb
+        - python-psutil
     - debug: msg="Did you run mysql_secure_installation?"
     - service: name=mysql state=started enabled=true
     - name: capstone
@@ -73,6 +74,8 @@
       #become: yes
 
     - name: set web config
-      template: src=web_config.cfg dest={{nightmare_dir}}/runtime/config.cfg 
+      template: src=web_config.cfg dest={{nightmare_dir}}/runtime/config.cfg
+    - file: {{data_dir}}/samples state=directory
+    - file: {{data_dir}}/templates state=directory
 
 
