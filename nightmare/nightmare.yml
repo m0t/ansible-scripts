@@ -58,11 +58,16 @@
     - mysql_db: name=nightmare state=present
       become: yes
       become_method: sudo
-    - shell: mysql -u{{db_user}} -p{{db_pass}} nightmare < {{nightmare_dir}}/doc/sql/nightmare.sql
-    - shell: mysql -u{{db_user}} -p{{db_pass}} -e "update config  set value='{{data_dir}}/samples' where name='SAMPLES_PATH';" nightmare 
-    - shell: mysql -u{{db_user}} -p{{db_pass}} -e "update config  set value='{{data_dir}}/templates' where name='TEMPLATES_PATH';" nightmare
-    - shell: mysql -u{{db_user}} -p{{db_pass}} -e "update config  set value='{{nightmare_dir}}' where name='NIGHTMARE_PATH';" nightmare
-    
+    - name: prepare mysql db
+      shell: mysql -u{{db_user}} -p{{db_pass}} nightmare < {{nightmare_dir}}/doc/sql/nightmare.sql
+    - name: prepare mysql db
+      shell: mysql -u{{db_user}} -p{{db_pass}} -e "update config  set value='{{data_dir}}/samples' where name='SAMPLES_PATH';" nightmare 
+    - name: prepare mysql db
+      shell: mysql -u{{db_user}} -p{{db_pass}} -e "update config  set value='{{data_dir}}/templates' where name='TEMPLATES_PATH';" nightmare
+    - name: prepare mysql db
+      shell: mysql -u{{db_user}} -p{{db_pass}} -e "update config  set value='{{nightmare_dir}}' where name='NIGHTMARE_PATH';" nightmare
+    - name: setup config.py
+      shell: cp {{nightmare_dir}}/runtime/config.py.example {{nightmare_dir}}/runtime/config.py creates={{nightmare_dir}}/runtime/config.py
       #- name: build radamsa
       #make: chdir={{radamsa_dir}} target=install
       #become: yes
