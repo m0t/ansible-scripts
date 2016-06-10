@@ -29,6 +29,8 @@
         - python-psutil
     - debug: msg="Did you run mysql_secure_installation?"
     - service: name=mysql state=started enabled=true
+      become: yes
+      become_method: sudo
     - name: capstone
       become: yes
       become_method: sudo
