@@ -27,7 +27,11 @@
         - beanstalkd
         - python-mysqldb
         - python-psutil
-    - debug: msg="Did you run mysql_secure_installation?"
+    - debug: msg="Did you run mysql_secure_installation? nightmare user? db?"
+    # create user 'fuzzing'@'localhost' identified by 'fuzzing';
+    # create database nightmare;
+    # grant all privileges on nightmare.* to 'fuzzing'@'localhost';
+    # flush privileges
     - service: name=mysql state=started enabled=true
       become: yes
       become_method: sudo
@@ -55,12 +59,8 @@
       git: repo={{ nightmare_repo }}
          dest={{nightmare_dir}}
          accept_hostkey=yes
-    - mysql_user: name={{db_user}} password={{db_pass}} priv=nightmare.*:ALL state=present
-      become: yes
-      become_method: sudo
-    - mysql_db: name=nightmare state=present
-      become: yes
-      become_method: sudo
+    #- mysql_user: name={{db_user}} password={{db_pass}} priv=nightmare.*:ALL state=present
+    - mysql_db: login_user={{db_user}} login_password={{db_pass}} name=nightmare state=present
     - name: prepare mysql db
       shell: mysql -u{{db_user}} -p{{db_pass}} nightmare < {{nightmare_dir}}/doc/sql/nightmare.sql
     - name: prepare mysql db
