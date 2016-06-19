@@ -1,3 +1,5 @@
+#other stuff:
+# - DynamoRIO: https://github.com/DynamoRIO/dynamorio/wiki/Downloads
 - hosts: ubuntu16
   remote_user: test
   vars:
@@ -39,6 +41,10 @@
       become: yes
       become_method: sudo
       pip: name=capstone
+    - name: simplejson
+      become: yes
+      become_method: sudo
+      pip: name=simplejson
     - name: olefile
       become: yes
       become_method: sudo
