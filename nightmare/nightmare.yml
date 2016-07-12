@@ -5,7 +5,7 @@
   vars:
     appuser: test
     data_dir: /home/{{appuser}}/data
-    nightmare_repo: https://github.com/joxeankoret/nightmare.git
+    nightmare_repo: https://github.com/m0t/nightmare.git
     nightmare_dir: "/home/{{ appuser }}/nightmare"
     db_user: fuzzing
     db_pass: fuzzing
